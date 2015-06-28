@@ -1,34 +1,56 @@
+import java.util.Iterator;
 import java.util.Scanner;
+import java.util.ArrayList;
+
 
 public class PlayingCardApp
 {
 
+	public static Scanner sc;
+	
 	public static void main(String [] args)
 	{
-			Scanner sc = new Scanner(System.in);
+			sc = new Scanner(System.in);
 	
-	
+			RegisterConnect reg = new RegisterConnect();
+			
 			
 			System.out.println("Welcome to Blackjack");
-			System.out.println("Please, enter your name: ");
-			String userName = sc.next();
+			System.out.println("Do you want to login or register?");
+			System.out.println("1.Login\n2.Register");
+			String choice = sc.next();
+			while( (!choice.equalsIgnoreCase("Login")) && (!choice.equalsIgnoreCase("Register")))
+					{
+						System.out.println("Invalid Input, Please try again:");
+						choice = sc.next();
+					}
+			if(choice.equalsIgnoreCase("Register"))
+			{
+				//reg.insertForm();
+				System.out.println("Not working yet");
+			}
+			else if(choice.equalsIgnoreCase("Login"))
+			{
+				reg.userLogin();
+			}
 			
-			User player = new User(userName); //this is for the users first card
-			Dealer thisDealer = new Dealer("Stephen"); //this is for the dealers first card
-			Betting playerBet = new Betting(userName);
+			User player = new User(reg.getFname(), reg.getBalance()); //this is for the users first card
+			Dealer thisDealer = new Dealer("Stephen", 0); //this is for the dealers first card
+			//Betting playerBet = new Betting(userName);
 			
 			
 			System.out.println("Welcome " + player.getName() + " to our game!");
 			System.out.println("My name is " + thisDealer.getName() + " and I am your dealer for tonight.");
 			thisDealer.getBeginGame(); //Dealer random Intro generator
-			player.manySec(3);
+			User.manySec(3);
 			
-			double balance = playerBet.getBalance();
+			double balance = player.getBalance();
 			double bet = 0;
 			double winBet = 0;
 			double looseBet = 0;
 			String playAgain = "yes";
 			System.out.println("Your starting off today with: " + balance + " in the bank!");
+			
 			do
 			{
 			
@@ -37,12 +59,12 @@ public class PlayingCardApp
 			
 			//Output how much the user has in the bank
 			
-			playerBet.makeABet();
+			player.makeABet();
 			
 			
-			bet = playerBet.getAmount();
+			bet = player.getAmount();
 			
-			playerBet.checkBet();
+			player.checkBet();
 			
 			//winBet = (bet * 2);
 			//looseBet = bet;
@@ -56,49 +78,84 @@ public class PlayingCardApp
 				thisDealer.getHighBet();
 			}
 			
+			ArrayList<String> UserCards = new ArrayList<String>();
+			Iterator<String> it = UserCards.iterator();
 			
-			
-			
-				int afterFirstCard = 0;
-			
-				//player.randomSuitGenerator(); //Gets the suit for each card
-				//player.randomRankGenerator(); // Gets the rank for each card
+				UserCards.add(player.card());
+				System.out.println(player.getCardOutput());
 				
 				
-				player.drawCard(); //this outputs what the card is
+				int userTotal = player.getRankInt();
 				
-				afterFirstCard = player.getUserTotal();
+				System.out.println(userTotal);
+	
 				
 				
-				String choice = "Hit"; //just needed for the loop to be entered
+				choice = "Hit"; //just needed for the loop to be entered
 				
-				int playerTotal = afterFirstCard; //this is the total for the users cards
-				//System.out.println("after next card is " + playerTotal);
+				
 				int dealerCheck = 0; //this is just to enter the nested loop so that the dealers first card will be given
 
 				
+				int checker = 0;
+				
 				do 
 				{
-					player.drawCard();
-				
-				
-					playerTotal = player.getUserTotal() + playerTotal; //this adds the total of all the cards and puts them in to a variable (playerTotal)
 					
-					if (playerTotal <= 21)
+					
+					int i = 0;
+					String nextCard = player.card();
+					
+					do
 					{
-					System.out.println("Your total is "  + playerTotal);
+						
+						if (nextCard.equalsIgnoreCase(UserCards.get(i)))
+						{
+							checker = 1;
+						}
+						else
+						{
+							checker = 0;
+						}
+						
+			
+						
+						
+						i++;
+					} while( (i<UserCards.size()) && (checker != 1) );
+					
+					if( (checker == 0) && (userTotal < 21))
+					{
+						UserCards.add(nextCard);
+						System.out.println(player.getCardOutput());
+						
+						userTotal = userTotal + player.getRankInt();
+						
+					}
+					
+					
+					if ( (userTotal <= 21) && (checker == 0))
+					{
+					System.out.println("Your total is "  + userTotal);
 					}
 					
 					while(dealerCheck == 0) //loop for the dealers first card
 					{
-						player.manySec(2);
-						thisDealer.dealerDrawCard();
+						User.manySec(2);
+						
+						//ArrayList<String> DealerCards = new ArrayList<String>();
+						//Iterator<String> it2 = DealerCards.iterator();
+						
+							UserCards.add(thisDealer.card());
+							System.out.println(thisDealer.getCardOutput());
+						
+						
 						dealerCheck = 1;
 					}
 					
-					if (playerTotal  < 21) //this is where the user decides to hit or sticks, exits the loop if > 21 or users sticks
+					if (userTotal  < 21) //this is where the user decides to hit or sticks, exits the loop if > 21 or users sticks
 					{
-						player.oneSec();
+						User.oneSec();
 						System.out.println("Would you like to hit or stick?\n1. Hit\n2. Stick");
 						choice = sc.next();
 						
@@ -108,103 +165,144 @@ public class PlayingCardApp
 								choice = sc.next();
 							}
 					}
-				
-				} while( (choice.equalsIgnoreCase("Hit")) && (playerTotal < 21));
-
-				
-
-				player.checkBust = playerTotal; //assigns a variable in the class to the total for the user so it can be used
-
-				player.bustOrStick();
-				
-				int dealerTotal = thisDealer.getFirstTotal();
-				
-					while ( (playerTotal <= 21) && (dealerTotal < playerTotal))
-					{
 					
-						thisDealer.dealerDrawCard();
-						dealerTotal = thisDealer.getFirstTotal() + dealerTotal;
-						player.oneSec();
+					
+				
+				} while( (checker == 1) || (choice.equalsIgnoreCase("Hit")) && (userTotal < 21));
+			
+				
+					int dealerTotal = thisDealer.getRankInt();
+					
+					
+					while ( (userTotal <= 21) && (dealerTotal < userTotal))
+					{
+							
+							
+							int i = 0;
+							String DealersCard = thisDealer.card();
+							
+							do
+							{
+								
+								if (DealersCard.equalsIgnoreCase(UserCards.get(i)))
+								{
+									checker = 1;
+								}
+								else
+								{
+									checker = 0;
+								}
+								
+					
+								
+								
+								i++;
+							} while( (i<UserCards.size()) && (checker != 1) );
+							
+							if( (checker == 0) && (userTotal < 21))
+							{
+								UserCards.add(DealersCard);
+								System.out.println(thisDealer.getCardOutput());
+								
+								dealerTotal = thisDealer.getRankInt() + dealerTotal;		
+							}
+							
 
-					}
-										
-					if (dealerTotal > 21)
-					{
-						System.out.println("I have gone bust");
-						thisDealer.getUserWin();
-						playerBet.getBetWin();
-						//Random dealer phrase when the user wins
-						//Add on the amount for the bet to the total
-					}
-					else if( (dealerTotal < 21) && (dealerTotal > playerTotal))
-					{
-						System.out.println(player.getName() + ": " + playerTotal);
-						System.out.println(thisDealer.getName() + ": " + dealerTotal);
-						System.out.println("I win");
-						thisDealer.getUserLoss();
-						playerBet.getBetLoss();
 						
-						//Random dealer phrase for when the dealer wins
-						//Take away amount of bet from the user amount
-					}
-					else if ( (dealerTotal > 21) && (dealerTotal < playerTotal))
-					{
-						System.out.println(player.getName() + ": " + playerTotal);
-						System.out.println(thisDealer.getName() + ": " + dealerTotal);
-						System.out.println("You win");
-						thisDealer.getUserWin();
-						playerBet.getBetWin();
-						//Random dealer phrase for when the user wins
-						//Add on the amount of the bet to the total
-					}
-					else if( dealerTotal == playerTotal)
-					{
-						System.out.println(player.getName() + ": " + playerTotal);
-						System.out.println(thisDealer.getName() + ": " + dealerTotal);
+						User.oneSec();
+
+				}
+
+				//System.out.println("User total: " + userTotal);
+				//System.out.println("Dealer total: " + dealerTotal);
+
 						
-						System.out.println("We draw");
-						thisDealer.getDraw();
-						playerBet.getBetDraw();
-						//Dealer phrase for when they draw
-						//Give the amount of the bet back to the user
-					}
-					
-					
-					else
-					{
-									
-						System.out.println("I win");
-						playerBet.getBetLoss();
-					}
-			
-
-					
-					System.out.println("Your current balance is: " + playerBet.getBalance());
-					User.oneSec();
-			
-					if (balance > 0)
-					{
-					System.out.println("Would you like to play another hand?");
-					playAgain = sc.next();
-					
-					while ( (!playAgain.equalsIgnoreCase("yes")) && (!playAgain.equalsIgnoreCase("no")))
-					{
-						System.out.println("I'm sorry but you must enter yes or no, please try again:");
-						playAgain = sc.next();
-					}
-					}
-					
-
-			
-			} while( (playAgain.equalsIgnoreCase("yes")) && (balance > 0));
-			
-			if (balance <= 0)
+			if (dealerTotal > 21)
 			{
-				thisDealer.moneyGone();
+				System.out.println("I have gone bust");
+				thisDealer.getUserWin();
+				player.getBetWin();
+				//Random dealer phrase when the user wins
+				//Add on the amount for the bet to the total
 			}
+			else if( (dealerTotal < 21) && (dealerTotal > userTotal))
+			{
+				System.out.println(player.getName() + ": " + userTotal);
+				System.out.println(thisDealer.getName() + ": " + dealerTotal);
+				System.out.println("I win");
+				thisDealer.getUserLoss();
+				player.getBetLoss();
+				
+				//Random dealer phrase for when the dealer wins
+				//Take away amount of bet from the user amount
+			}
+			else if ( (dealerTotal > 21) && (dealerTotal < userTotal))
+			{
+				System.out.println(player.getName() + ": " + userTotal);
+				System.out.println(thisDealer.getName() + ": " + dealerTotal);
+				System.out.println("You win");
+				thisDealer.getUserWin();
+				player.getBetWin();
+				//Random dealer phrase for when the user wins
+				//Add on the amount of the bet to the total
+			}
+			else if( dealerTotal == userTotal)
+			{
+				System.out.println(player.getName() + ": " + userTotal);
+				System.out.println(thisDealer.getName() + ": " + dealerTotal);
+				
+				System.out.println("We draw");
+				thisDealer.getDraw();
+				player.getBetDraw();
+				//Dealer phrase for when they draw
+				//Give the amount of the bet back to the user
+			}
+			else if ( userTotal == 21)
+			{
+				System.out.println("Blackjack!");
+				player.getBlackjack();
+				thisDealer.getUserWin();
+			}
+			
 			else
 			{
-				thisDealer.getGameOver();
+				System.out.println("You have gone bust");
+				System.out.println("I win");
+				player.getBetLoss();
 			}
+			
+		
+			
+			System.out.println("Your current balance is: " + player.getBalance());
+			User.oneSec();
+	
+			if (balance > 0)
+			{
+			System.out.println("Would you like to play another hand?");
+			playAgain = sc.next();
+			
+			while ( (!playAgain.equalsIgnoreCase("yes")) && (!playAgain.equalsIgnoreCase("no")))
+			{
+				System.out.println("I'm sorry but you must enter yes or no, please try again:");
+				playAgain = sc.next();
+			}
+			}
+			
+
+	
+	} while( (playAgain.equalsIgnoreCase("yes")) && (balance > 0));
+	
+	if (balance <= 0)
+	{
+		thisDealer.moneyGone();
+	}
+	else
+	{
+		thisDealer.getGameOver();
+	}
+				
+				
+				
 	}
 }
+

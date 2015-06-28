@@ -25,7 +25,7 @@ public class Register {
 		{
 			reg.insertForm();
 		}
-		else if(choice.equalsIgnoreCase("Login"));
+		else if(choice.equalsIgnoreCase("Login"))
 		{
 			reg.userLogin();
 		}

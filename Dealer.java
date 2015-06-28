@@ -1,22 +1,23 @@
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Scanner;
+
 
 public class Dealer extends User
 {
-
-	private String beginGame;
-	private String userLowBet;
-	private String userHighBet;
-	private String userWin;
-	private String userLoss;
-	private String gameOver;
 	
-
-	public Dealer(String dealerName)
+	private int dealerTotal;
+	
+	
+	public Dealer(String dealerName, double balance)
 	{
-		super(dealerName);
+		super(dealerName,balance);
 	}
 	
-
+	public int getDealerTotal()
+	{
+		return dealerTotal;
+	}
 
 	
 	public void getBeginGame()
@@ -178,6 +179,74 @@ public class Dealer extends User
 
 	}
 
+	public void DealerCard()
+	{
+		sc = new Scanner(System.in);
+		
+		ArrayList<String> testList = new ArrayList<String>();
+		Iterator<String> it = testList.iterator();
+		
+		this.card();
+		
+		String choice = "yes";
+		
+		int checker = 0;
+		testList.add(this.card());
+		
+		System.out.println(this.getCardOutput());
+		
+		dealerTotal = this.getRankInt();
+		
+		do {
+
+			this.card();
+			
+			
+			int i = 0;
+			
+			do
+			{
+				
+				if (this.card().equalsIgnoreCase(testList.get(i)))
+				{
+					checker = 1;
+				}
+				else
+				{
+					checker = 0;
+				}
+				
+	
+				
+				
+				i++;
+			} while( (i<testList.size()) && (checker != 1) );
+			
+			if(checker == 0)
+			{
+				testList.add(this.card());
+				System.out.println(this.getCardOutput());
+				
+				dealerTotal = dealerTotal + this.getRankInt();
+				
+			}
+			
+			
+			if( (checker == 0) && (dealerTotal < 21))
+			{
+			
+				System.out.println("Dealer's total is: " + dealerTotal);
+				Dealer.oneSec();
+				
+			}
+			
+			
+		} while((dealerTotal < 21));
+
+			System.out.println("Total is greater that 21");
+			
+
+	}	
 		
 	
 	
